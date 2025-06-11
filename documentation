@@ -1,0 +1,168 @@
+**Learning Vector Quantization (LVQ) - Detailed Documentation**
+
+This document provides a thorough explanation of the Learning Vector Quantization (LVQ) algorithm implementation, including every key variable, function, and logic used in the code. This serves both as a study reference and a practical guide for developers.
+
+---
+
+### Overview of LVQ
+
+**LVQ (Learning Vector Quantization)** is a prototype-based supervised classification algorithm. It simplifies the classification process by using representative vectors (called **prototypes**) for each class, rather than working with every individual training instance.
+
+---
+
+### Main Concepts
+
+* **Prototype:** A representative vector for a class, usually computed as the mean of all class vectors.
+* **Label:** A string that identifies the class a vector belongs to (e.g., "red", "blue").
+* **Alpha:** The learning rate which defines how much prototypes are adjusted during training. It starts at 0.1 (10%) and decreases by 5% per epoch.
+* **Epochs:** Number of iterations the model will train on the dataset.
+* **Quantization:** Replacing many vectors of a class with their average (mean) vector to reduce computational complexity.
+
+---
+
+### Class: `LVQClassifier`
+
+#### Variables:
+
+```java
+private double[][] prototypes;
+```
+
+Holds the prototype vectors for each class (2D array).
+
+```java
+private String[] protoLabels;
+```
+
+Holds the corresponding labels for each prototype.
+
+```java
+private double alpha = 0.1;
+```
+
+The learning rate. Controls how aggressively we move prototypes toward or away from samples during training.
+
+```java
+private int epochs = 20;
+```
+
+The number of full passes over the training dataset to refine prototype positions.
+
+---
+
+### Constructor:
+
+```java
+public LVQClassifier(double[][] trainData, String[] trainLabels) {
+    initializePrototypes(trainData, trainLabels);
+    train(trainData, trainLabels);
+}
+```
+
+Initializes the prototypes based on the training data and begins the training process.
+
+---
+
+### Method: `initializePrototypes`
+
+```java
+private void initializePrototypes(double[][] data, String[] labels)
+```
+
+**Purpose:**
+
+* Creates one prototype per class.
+* For each class, calculates the **mean vector** across all vectors of that class.
+* This mean becomes the prototype for that class.
+
+**How it works:**
+
+1. Creates a map of class labels to lists of vectors.
+2. Loops over the dataset and groups vectors by class.
+3. Computes the mean of each group and assigns it as a prototype.
+
+---
+
+### Method: `train`
+
+```java
+private void train(double[][] data, String[] labels)
+```
+
+**Purpose:**
+
+* Refines the prototypes by adjusting them according to their distance from each input sample.
+
+**How it works:**
+
+1. For each epoch, loop through all data points.
+2. Find the **nearest prototype** (using Euclidean distance).
+3. If the prototype's label matches the data label:
+
+   * Move the prototype **closer** to the data point.
+4. Otherwise:
+
+   * Move the prototype **further** from the data point.
+5. Reduce `alpha` by multiplying it by `0.95` after every epoch.
+
+---
+
+### Method: `findNearestPrototype`
+
+```java
+private int findNearestPrototype(double[] x)
+```
+
+**Purpose:**
+
+* Finds the prototype closest to the input vector using **Euclidean distance**.
+* Does **not** take the square root for efficiency (preserving relative comparisons).
+
+**How it works:**
+
+* Loops through all prototypes.
+* For each prototype, calculates the sum of squared differences from the input.
+* Keeps track of the minimum distance and returns the index of the closest prototype.
+
+---
+
+### Method: `predict`
+
+```java
+public String predict(double[] input)
+```
+
+**Purpose:**
+
+* Uses the trained prototypes to predict the label of a new input vector.
+* Returns the label of the nearest prototype.
+
+---
+
+### Summary of Workflow
+
+1. **Input:** Training vectors and their labels.
+2. **Initialization:** Group vectors by class, calculate mean, store as prototypes.
+3. **Training:** Loop through dataset, adjust prototypes based on label match.
+4. **Prediction:** For new input, find closest prototype and return its label.
+
+---
+
+### Advantages
+
+* Reduces dataset complexity via quantization.
+* Easy to implement and understand.
+* Works well for well-separated classes.
+
+### Real-World Example
+
+In a Spring Boot library app, this could be used for:
+
+* Predicting user type (active/inactive).
+* Recommending books based on borrowing behavior.
+* Flagging suspicious activity based on vectorized user interaction data.
+
+---
+
+
+
